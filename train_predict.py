@@ -54,7 +54,13 @@ class LegendreFeatures(BaseEstimator, TransformerMixin):
 
 def load_data(problem, part, data_dir=None):
     features = [f"x{i}" for i in range(1, {1: 6, 2: 3}[problem] + 1)]
-    path = Path(data_dir or ROOT / "data") / f"IMT2024064_{part}_var{problem}.csv"
+    directory = Path(data_dir or ROOT / "data")
+    filename = f"IMT2024064_{part}_var{problem}.csv"
+    path = directory / filename
+    # Browser uploads can place the supplied CSVs beside the Python files.
+    # Support both the packaged data/ layout and that flat layout.
+    if not path.is_file() and directory.resolve() == (ROOT / "data").resolve():
+        path = ROOT / filename
     labeled = part == "train"
     with path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
